@@ -1,5 +1,14 @@
-<script setup></script>
+<script setup>
+import { store } from "../store";
+import MatchVue from "./Match.vue";
+</script>
 
-<template></template>
+<template>
+	<MatchVue
+		v-for="match in store.matchHistory"
+		:key="match.metadata.matchid"
+		:match-data="match"
+	/>
+</template>
 
 <style scoped lang="scss"></style>

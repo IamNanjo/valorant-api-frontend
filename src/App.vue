@@ -1,7 +1,13 @@
-<script setup></script>
+<script setup>
+import SearchFieldVue from "./components/SearchField.vue";
+import MatchHistoryContainerVue from "./components/MatchHistoryContainer.vue";
+</script>
 
 <template>
-    Test
+	<main>
+		<SearchFieldVue />
+		<MatchHistoryContainerVue />
+	</main>
 </template>
 
-<style scoped lang="scss"></style>
+<style lang="scss"></style>
