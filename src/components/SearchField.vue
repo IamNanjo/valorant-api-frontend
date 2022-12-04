@@ -1,27 +1,38 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import { store } from "../store";
 
 const region = ref("eu");
-const usernameWithTag = ref("");
+const usernameWithTag = ref("Nanjo#2707");
 const errorMsg = ref("");
 
 function handleSubmit() {
 	const [username, tag] = usernameWithTag.value.split("#");
 
-	fetch(`https://api.henrikdev.xyz/valorant/v3/matches/${region.value}/${username}/${tag || "tag"}`)
+	fetch(
+		`https://api.henrikdev.xyz/valorant/v3/matches/${region.value}/${username}/${tag}`
+	)
 		.then(async (res) => {
 			if (res.status === 200) {
 				errorMsg.value = "";
 				try {
 					const data = await res.json();
-					store.matchHistory = data.data;
-					store.userSearched = true;
+					if (data.status === 200) {
+						store.matchHistory = data.data;
+						store.userSearched = true;
+						store.searchedUser = [username, tag];
+					} else {
+						throw Error();
+					}
 				} catch {
-					throw Error("Failed to fetch match history with given username")
+					throw Error(
+						"Failed to fetch match history with given region and username"
+					);
 				}
 			} else {
-				throw Error("Failed to fetch match history with given username");
+				throw Error(
+					"Failed to fetch match history with given region and username"
+				);
 			}
 		})
 		.catch((err) => {
@@ -31,22 +42,27 @@ function handleSubmit() {
 </script>
 
 <template>
-	<form
-		:class="store.userSearched ? '' : 'bigmargin'"
-		@submit.prevent="handleSubmit"
-	>
-		<div class="custom-select">
-			<select name="region" v-model="region">
-				<option selected value="eu">Europe</option>
-				<option value="na">North America</option>
-				<option value="kr">Korea</option>
-				<option value="ap">Asia Pacific</option>
-			</select>
-			<span class="custom-arrow"></span>
-		</div>
-		<input type="text" placeholder="Username#tag" v-model="usernameWithTag" />
-	</form>
-	<div v-if="errorMsg" class="error">{{ errorMsg }}</div>
+	<div :class="store.userSearched ? '' : 'bigmargin'">
+		<h1 v-if="!store.userSearched">VALORANT Match History Lookup</h1>
+		<form @submit.prevent="handleSubmit">
+			<div class="custom-select">
+				<select name="region" v-model="region">
+					<option selected value="eu">Europe</option>
+					<option value="na">North America</option>
+					<option value="kr">Korea</option>
+					<option value="ap">Asia Pacific</option>
+				</select>
+				<span class="custom-arrow"></span>
+			</div>
+			<input
+				type="text"
+				placeholder="Username#tag"
+				v-model="usernameWithTag"
+				autofocus
+			/>
+		</form>
+		<div v-if="errorMsg" class="error">{{ errorMsg }}</div>
+	</div>
 </template>
 
 <style scoped lang="scss">
@@ -54,8 +70,16 @@ function handleSubmit() {
 	margin-top: 40%;
 }
 
+h1 {
+	margin: 2em auto;
+	font-size: 2rem;
+	text-align: center;
+}
+
 form {
 	display: flex;
+	margin: 0 auto;
+	width: 100%;
 }
 
 input {
@@ -65,7 +89,6 @@ input {
 	border-top-right-radius: 12px;
 	width: 100%;
 	height: max-content;
-	font-size: 1.5rem;
 	padding: 1em;
 	box-shadow: none;
 }
@@ -79,7 +102,6 @@ input {
 		border: 1px solid #767676;
 		border-bottom-left-radius: 12px;
 		border-top-left-radius: 12px;
-		font-size: 1.5rem;
 		padding: 1em 4em 1em 1em;
 		appearance: none;
 	}
@@ -130,5 +152,20 @@ input {
 	color: #ef5350;
 	font-size: 2rem;
 	font-weight: 700;
+	text-align: center;
+}
+
+@media screen and (min-width: 600px) {
+	form {
+		width: 80%;
+		font-size: 1.125rem;
+	}
+}
+
+@media screen and (min-width: 800px) {
+	form {
+		width: 60%;
+		font-size: 1.25rem;
+	}
 }
 </style>

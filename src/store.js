@@ -1,6 +1,9 @@
 import { reactive } from "vue";
 
 export const store = reactive({
-    userSearched: false,
-    matchHistory: []
+	userSearched: false,
+	searchedUser: ["", ""],
+	matchHistory: [],
+	mapIcons: {},
+	rankIcons: {}
 });
