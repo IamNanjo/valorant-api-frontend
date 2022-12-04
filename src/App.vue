@@ -4,10 +4,8 @@ import MatchHistoryContainerVue from "./components/MatchHistoryContainer.vue";
 </script>
 
 <template>
-	<main>
-		<SearchFieldVue />
-		<MatchHistoryContainerVue />
-	</main>
+	<SearchFieldVue />
+	<MatchHistoryContainerVue />
 </template>
 
 <style lang="scss"></style>
