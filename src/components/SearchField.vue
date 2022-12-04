@@ -67,7 +67,7 @@ function handleSubmit() {
 
 <style scoped lang="scss">
 .bigmargin {
-	margin-top: 40%;
+	margin-top: 30%;
 }
 
 h1 {

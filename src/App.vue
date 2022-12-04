@@ -40,8 +40,29 @@ onBeforeMount(async () => {
 </script>
 
 <template>
-	<SearchFieldVue />
-	<MatchHistoryContainerVue />
+	<nav><SearchFieldVue /></nav>
+	<main><MatchHistoryContainerVue /></main>
+	<footer>
+		<a href="https://github.com/IamNanjo/valorant-api-frontend" target="_blank">
+			Source code on GitHub
+			<img src="/github.png" alt="" height="32" />
+		</a>
+	</footer>
 </template>
 
-<style lang="scss"></style>
+<style lang="scss">
+footer > a {
+	display: flex;
+	align-items: center;
+	align-content: center;
+	gap: 0.5em;
+	background: #202020;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100vw;
+	height: 4em;
+	padding: 0 4em;
+	font-size: 1.25rem;
+}
+</style>
