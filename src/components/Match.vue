@@ -17,7 +17,6 @@ function checkWin() {
 			player.name === store.searchedUser[0] &&
 			player.tag === store.searchedUser[1]
 		) {
-			console.log("player.team :>> ", player.team);
 			if (player.team === "Blue") {
 				playerInBlueTeam.value = true;
 			}
@@ -59,18 +58,12 @@ onBeforeMount(() => {
 				{{ matchData.teams.blue.rounds_won }}
 			</div>
 		</div>
-		<div class="players">
-			<div class="col">
-				<div v-for="player in matchData.players.blue" class="player">
-					<PlayerVue :player="player" />
-				</div>
-			</div>
+		<div class="team">
+			<PlayerVue v-for="player in matchData.players.blue" :player="player" />
+		</div>
 
-			<div class="col">
-				<div v-for="player in matchData.players.red" class="player">
-					<PlayerVue :player="player" />
-				</div>
-			</div>
+		<div class="team">
+			<PlayerVue v-for="player in matchData.players.red" :player="player" />
 		</div>
 	</div>
 </template>
@@ -80,16 +73,13 @@ onBeforeMount(() => {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	justify-content: space-between;
+	justify-content: space-evenly;
 	background-position: center;
 	background-size: cover;
 	width: 100%;
-	padding: 2em;
+	padding: 3em;
 	height: 22em;
 	border-radius: 1em;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	word-wrap: nowrap;
 }
 
 .game-result {
@@ -101,22 +91,9 @@ onBeforeMount(() => {
 	font-weight: 500;
 }
 
-.players {
-	display: flex;
-	align-items: center;
-	gap: 1em 2em;
-	height: 100%;
-
-	.col {
-		display: flex;
-		flex-direction: column;
-		gap: 0.5em;
-
-		.player {
-			display: flex;
-			place-items: center;
-			gap: 0.25em;
-		}
-	}
+.team {
+	display: grid;
+	grid-template-columns: repeat(3, max-content);
+	gap: 0.5em;
 }
 </style>
