@@ -5,14 +5,17 @@ import { store } from "../store";
 const region = ref("eu");
 const usernameWithTag = ref("Nanjo#2707");
 const errorMsg = ref("");
+const loading = ref(false);
 
 function handleSubmit() {
+	loading.value = true;
 	const [username, tag] = usernameWithTag.value.split("#");
 
 	fetch(
 		`https://api.henrikdev.xyz/valorant/v3/matches/${region.value}/${username}/${tag}`
 	)
 		.then(async (res) => {
+			loading.value = false;
 			if (res.status === 200) {
 				errorMsg.value = "";
 				try {
@@ -42,6 +45,7 @@ function handleSubmit() {
 </script>
 
 <template>
+	<div v-if="loading" class="loader"></div>
 	<div :class="store.userSearched ? '' : 'bigmargin'">
 		<h1 v-if="!store.userSearched">VALORANT Match History Lookup</h1>
 		<form @submit.prevent="handleSubmit">
@@ -66,6 +70,16 @@ function handleSubmit() {
 </template>
 
 <style scoped lang="scss">
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
 .bigmargin {
 	margin-top: 30%;
 }
@@ -74,6 +88,20 @@ h1 {
 	margin: 2em auto;
 	font-size: 2rem;
 	text-align: center;
+}
+
+.loader {
+	display: block;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border: 16px solid transparent;
+	border-top: 16px solid #EF5350;
+	border-radius: 50%;
+	width: 120px;
+	height: 120px;
+	animation: spin 1.5s linear infinite;
 }
 
 form {
