@@ -29,6 +29,16 @@
 	border-radius: 10px;
 }
 
+body {
+	background-color: #242424;
+	padding-top: 1em;
+	min-height: 100vh;
+}
+nav, main {
+	width: 90%;
+	margin: 0 auto;
+}
+
 a:hover::after {
 	content: "";
 	display: block;
@@ -38,20 +48,12 @@ a:hover::after {
 	height: 2px;
 }
 
-body {
-	background-color: #242424;
-	width: 90%;
-	margin: 0 auto;
-	padding-top: 1em;
-	min-height: 100vh;
-}
-
 code {
 	font-family: "JetBrains Mono", monospace;
 }
 
 @media screen and (min-width: 960px) {
-	body {
+	nav, main {
 		width: 75%;
 	}
 }
