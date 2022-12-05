@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { store } from "../store";
 
 const region = ref("eu");
-const usernameWithTag = ref("Nanjo#2707");
+const usernameWithTag = ref("");
 const errorMsg = ref("");
 const loading = ref(false);
 
