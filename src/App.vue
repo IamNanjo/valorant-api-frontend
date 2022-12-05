@@ -53,18 +53,16 @@ onBeforeMount(async () => {
 <style lang="scss">
 footer {
 	display: flex;
+	position: absolute;
+	bottom: 0;
 	background: #202020;
 	width: 100vw;
-	height: 5em;
-	margin-top: 5em;
-	bottom: 0;
-	left: 0;
+	height: 4em;
+	padding: 0 5em;
 	align-items: center;
 	align-content: center;
 
 	> a {
-		gap: 0.5em;
-		padding: 0 4em;
 		font-size: 1.25rem;
 
 		img {
