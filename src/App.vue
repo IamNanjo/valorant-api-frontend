@@ -51,18 +51,25 @@ onBeforeMount(async () => {
 </template>
 
 <style lang="scss">
-footer > a {
+footer {
 	display: flex;
+	background: #202020;
+	width: 100vw;
+	height: 5em;
+	margin-top: 5em;
+	bottom: 0;
+	left: 0;
 	align-items: center;
 	align-content: center;
-	gap: 0.5em;
-	background: #202020;
-	position: absolute;
-	left: 0;
-	bottom: 0;
-	width: 100vw;
-	height: 4em;
-	padding: 0 4em;
-	font-size: 1.25rem;
+
+	> a {
+		gap: 0.5em;
+		padding: 0 4em;
+		font-size: 1.25rem;
+
+		img {
+			vertical-align: middle;
+		}
+	}
 }
 </style>
