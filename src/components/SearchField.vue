@@ -81,7 +81,7 @@ function handleSubmit() {
 }
 
 .bigmargin {
-	margin-top: 30%;
+	margin-top: 20vh;
 }
 
 h1 {
