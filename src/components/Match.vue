@@ -45,7 +45,7 @@ onBeforeMount(() => {
 			'Competitive' === matchData.metadata.mode
 		"
 		class="match"
-		:style="`background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url(${mapIcon!.large});`"
+		:style="`background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.9)), url(${mapIcon!.large}) center center / cover;`"
 	>
 		<div class="game-result">
 			<div>{{ checkWin() }}</div>
@@ -74,8 +74,6 @@ onBeforeMount(() => {
 	flex-direction: row;
 	align-items: center;
 	justify-content: space-evenly;
-	background-position: center;
-	background-size: cover;
 	width: 100%;
 	padding: 3em;
 	height: 22em;
