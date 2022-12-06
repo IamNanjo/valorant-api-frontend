@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { onBeforeMount, onMounted, ref } from "vue";
 import { store } from "../store";
 
 const region = ref("eu");
@@ -32,6 +32,8 @@ function handleSubmit() {
 						"Failed to fetch match history with given region and username"
 					);
 				}
+			} else if (res.status === 429) {
+				throw Error("Too many requests. The limit is 250 requests every 2½ minutes");
 			} else {
 				throw Error(
 					"Failed to fetch match history with given region and username"
@@ -42,6 +44,26 @@ function handleSubmit() {
 			errorMsg.value = err.message;
 		});
 }
+
+onBeforeMount(() => {
+	const params = Object.fromEntries(
+		new URLSearchParams(window.location.search).entries()
+	);
+
+	if ("region" in params) {
+		region.value = params.region;
+	}
+
+	if ("name" in params && "tag" in params) {
+		usernameWithTag.value = `${params.name}#${params.tag}`;
+	}
+});
+
+onMounted(() => {
+	if (usernameWithTag.value) {
+		handleSubmit();
+	}
+});
 </script>
 
 <template>
@@ -71,13 +93,21 @@ function handleSubmit() {
 
 <style scoped lang="scss">
 @-webkit-keyframes spin {
-  0% { -webkit-transform: rotate(0deg); }
-  100% { -webkit-transform: rotate(360deg); }
+	0% {
+		-webkit-transform: rotate(0deg);
+	}
+	100% {
+		-webkit-transform: rotate(360deg);
+	}
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }
 
 .bigmargin {
@@ -97,7 +127,7 @@ h1 {
 	left: 50%;
 	transform: translate(-50%, -50%);
 	border: 16px solid transparent;
-	border-top: 16px solid #EF5350;
+	border-top: 16px solid #ef5350;
 	border-radius: 50%;
 	width: 120px;
 	height: 120px;
@@ -176,7 +206,7 @@ input {
 
 .error {
 	width: 100%;
-	padding: 0.5em;
+	padding: 1em;
 	color: #ef5350;
 	font-size: 2rem;
 	font-weight: 700;
