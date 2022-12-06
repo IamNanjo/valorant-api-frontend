@@ -25,8 +25,8 @@ function checkWin() {
 
 	return (playerInBlueTeam.value && matchData.teams.blue.has_won) ||
 		(!playerInBlueTeam.value && matchData.teams.red.has_won)
-		? "Victory"
-		: "Defeat";
+		? "<div style='color: #66BB6A;'>Victory</div>"
+		: "<div style='color: #EF5350;'>Defeat</div>";
 }
 
 onBeforeMount(() => {
@@ -48,7 +48,8 @@ onBeforeMount(() => {
 		:style="`background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.9)), url(${mapIcon!.large}) center center / cover;`"
 	>
 		<div class="game-result">
-			<div>{{ checkWin() }}</div>
+			<div>{{ matchData.metadata.mode }}</div>
+			<div v-html="checkWin()"></div>
 			<div v-if="playerInBlueTeam">
 				{{ matchData.teams.blue.rounds_won }} -
 				{{ matchData.teams.red.rounds_won }}
@@ -87,6 +88,11 @@ onBeforeMount(() => {
 	place-content: center;
 	font-size: 2rem;
 	font-weight: 500;
+
+	> :first-child {
+		color: #aaaaaa;
+		font-size: 1.5rem;
+	}
 }
 
 .team {
