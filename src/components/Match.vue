@@ -1,22 +1,21 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, ref } from "vue";
-import { Match, Player } from "../types";
+import { ref } from "vue";
+import { Match } from "../types";
 import PlayerVue from "./Player.vue";
 import { store } from "../store";
 
 const { matchData } = defineProps<{ matchData: Match }>();
 
 const playerInBlueTeam = ref(false);
-let mapIcon: { normal: string; large: string } | null;
+let mapIcon: { normal: string; large: string } | null =
+	store.mapIcons[matchData.metadata.map];
 
 function checkWin() {
 	for (let i = 0; i < matchData.players.all_players.length; i++) {
 		const player = matchData.players.all_players[i];
+		const [name, tag] = store.searchedUser.split("#");
 
-		if (
-			player.name === store.searchedUser[0] &&
-			player.tag === store.searchedUser[1]
-		) {
+		if (player.name === name && player.tag === tag) {
 			if (player.team === "Blue") {
 				playerInBlueTeam.value = true;
 			}
@@ -28,66 +27,64 @@ function checkWin() {
 		? "<div style='color: #66BB6A;'>Victory</div>"
 		: "<div style='color: #EF5350;'>Defeat</div>";
 }
-
-onBeforeMount(() => {
-	try {
-		mapIcon = store.mapIcons[matchData.metadata.map];
-	} catch {
-		mapIcon = null;
-	}
-});
 </script>
 
 <template>
 	<div
 		v-if="
-			'Unrated' === matchData.metadata.mode ||
-			'Competitive' === matchData.metadata.mode
+			['Unrated', 'Competitive', 'Swiftplay'].includes(matchData.metadata.mode)
 		"
 		class="match"
-		:style="`background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.9)), url(${mapIcon!.large}) center center / cover;`"
+		:style="`background: linear-gradient(0deg, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)), url(${mapIcon!.large}) center center / cover;`"
 	>
 		<div class="game-result">
-			<div>{{ matchData.metadata.mode }}</div>
-			<div v-html="checkWin()"></div>
-			<div v-if="playerInBlueTeam">
+			<div class="no-select">{{ matchData.metadata.mode }}</div>
+			<div class="no-select" v-html="checkWin()"></div>
+			<div class="no-select" v-if="playerInBlueTeam">
 				{{ matchData.teams.blue.rounds_won }} -
 				{{ matchData.teams.red.rounds_won }}
 			</div>
-			<div v-else>
+			<div class="no-select" v-else>
 				{{ matchData.teams.red.rounds_won }} -
 				{{ matchData.teams.blue.rounds_won }}
 			</div>
 		</div>
-		<div class="team">
-			<PlayerVue v-for="player in matchData.players.blue" :player="player" />
-		</div>
 
-		<div class="team">
-			<PlayerVue v-for="player in matchData.players.red" :player="player" />
+		<div class="teams">
+			<div class="team">
+				<PlayerVue v-for="player in matchData.players.blue" :player="player" />
+			</div>
+
+			<div class="team">
+				<PlayerVue v-for="player in matchData.players.red" :player="player" />
+			</div>
 		</div>
 	</div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 .match {
 	display: flex;
 	flex-direction: row;
+	flex-wrap: wrap;
 	align-items: center;
-	justify-content: space-evenly;
+	justify-content: space-between;
+	gap: 2em;
 	width: 100%;
-	padding: 3em;
-	height: 22em;
+	padding: 1em;
 	border-radius: 1em;
 }
 
 .game-result {
 	display: flex;
 	flex-direction: column;
-	place-items: center;
-	place-content: center;
-	font-size: 2rem;
+	justify-content: center;
+	height: 100%;
+	margin-inline: auto;
+	font-size: 1.5em;
 	font-weight: 500;
+	text-shadow: 1px 1px 6px black;
+	text-align: center;
 
 	> :first-child {
 		color: #aaaaaa;
@@ -95,9 +92,18 @@ onBeforeMount(() => {
 	}
 }
 
+.teams {
+	display: flex;
+	flex-wrap: wrap;
+	margin: auto;
+	gap: 3em;
+}
+
 .team {
 	display: grid;
-	grid-template-columns: repeat(3, max-content);
+	grid-template-columns: max-content max-content 1fr;
+	width: max-content;
 	gap: 0.5em;
+	text-align: left;
 }
 </style>

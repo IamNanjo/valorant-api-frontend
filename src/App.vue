@@ -1,41 +1,44 @@
 <script setup lang="ts">
+import { ofetch } from "ofetch";
 import SearchFieldVue from "./components/SearchField.vue";
 import MatchHistoryContainerVue from "./components/MatchHistoryContainer.vue";
 import { store } from "./store";
-import { onBeforeMount, onMounted } from "vue";
+import { onBeforeMount } from "vue";
 
 interface MapData {
-	displayName: string;
-	listViewIcon: string;
-	splash: string;
+	data: { displayName: string; listViewIcon: string; splash: string }[];
+}
+
+interface RankData {
+	data: {
+		tiers: { tierName: string; smallIcon: string; largeIcon: string }[];
+	}[];
 }
 
 onBeforeMount(async () => {
-	fetch("https://valorant-api.com/v1/maps").then(async (res) => {
-		if (res.status === 200) {
-			const data: MapData[] = (await res.json()).data;
-			for (let i = 0; i < data.length; i++) {
-				const map = data[i];
-				store.mapIcons[map.displayName] = {
-					normal: map.listViewIcon,
-					large: map.splash
-				};
-			}
+	ofetch("https://valorant-api.com/v1/maps").then((res: MapData) => {
+		const maps = res.data;
+
+		for (let i = 0, len = maps.length; i < len; i++) {
+			const map = maps[i];
+			store.mapIcons[map.displayName] = {
+				normal: map.listViewIcon,
+				large: map.splash
+			};
 		}
 	});
 
-	fetch("https://valorant-api.com/v1/competitivetiers").then(async (res) => {
-		if (res.status === 200) {
-			const { tiers } = (await res.json()).data.at(-1);
-
-			for (let i = 0; i < tiers.length; i++) {
+	ofetch("https://valorant-api.com/v1/competitivetiers").then(
+		(res: RankData) => {
+			const { tiers } = res.data[res.data.length - 1];
+			for (let i = 0, len = tiers.length; i < len; i++) {
 				const rank = tiers[i];
 				if (rank.smallIcon) {
 					store.rankIcons[rank.tierName] = rank.smallIcon;
 				}
 			}
 		}
-	});
+	);
 });
 </script>
 
@@ -51,23 +54,89 @@ onBeforeMount(async () => {
 </template>
 
 <style lang="scss">
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	font: inherit;
+	text-decoration: none;
+	color: rgba(255, 255, 255, 0.87);
+	line-height: 1.5em;
+}
+
+:root {
+	--bg-raise: rgba(255, 255, 255, 0.03);
+	color-scheme: dark;
+}
+
+::-webkit-scrollbar {
+	display: none;
+}
+
+body {
+	position: relative;
+	background-color: #121212;
+	min-height: 100vh;
+	min-height: 100svh;
+	padding-top: 1em;
+	font-family: Roboto, sans-serif;
+}
+nav,
+main {
+	width: 90%;
+	max-width: 1280px;
+	margin: 0 auto;
+}
+main {
+	padding-bottom: 6em;
+}
+
 footer {
 	display: flex;
 	position: absolute;
 	bottom: 0;
-	background: #202020;
-	width: 100vw;
+	background: rgba(255, 255, 255, 0.03);
+	width: 100%;
 	height: 4em;
-	padding: 0 5em;
+	padding: 0 2em;
 	align-items: center;
 	align-content: center;
 
 	> a {
-		font-size: 1.25rem;
+		display: flex;
+		align-items: center;
+		font-size: 1.125em;
 
 		img {
-			vertical-align: middle;
+			height: 1.75em;
+			margin-left: 0.5em;
 		}
+	}
+}
+
+code {
+	font-family: "JetBrains Mono", monospace;
+}
+
+a:hover::after {
+	content: "";
+	display: block;
+	position: absolute;
+	bottom: 0;
+	width: 0;
+	height: 2px;
+}
+
+.no-select, button, img {
+	user-select: none;
+}
+
+@media screen and (min-width: 960px) {
+	nav,
+	main {
+		width: 75%;
 	}
 }
 </style>

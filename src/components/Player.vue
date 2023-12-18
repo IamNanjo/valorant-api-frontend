@@ -10,34 +10,70 @@ const rankIcon = store.rankIcons[player.currenttier_patched.toUpperCase()];
 	<img :src="rankIcon || store.rankIcons['UNRANKED']" height="48" />
 	<img :src="player.assets.agent.small" :alt="player.character" height="48" />
 	<div class="player-details">
-		<div>
-			<span>{{ player.name }}</span
-			><span>#{{ player.tag }}</span>
+		<div
+			class="player-details__username"
+			:title="`${player.name}#${player.tag}`"
+			@click="
+				() => {
+					store.searchedUser = `${player.name}#${player.tag}`;
+				}
+			"
+		>
+			<span class="player-details__name">{{ player.name }}</span>
+			<span class="player-details__tag">#{{ player.tag }}</span>
 		</div>
-		<div>
+		<div class="player-details__score">
 			{{ player.stats.kills }}/{{ player.stats.deaths }}/{{
 				player.stats.assists
 			}}
+			({{
+				Math.floor(
+					((player.stats.kills + player.stats.assists / 3) /
+						player.stats.deaths) *
+						10
+				) / 10
+			}})
 		</div>
 	</div>
 </template>
 
 <style scoped lang="scss">
+img {
+	filter: drop-shadow(1px 1px 2px black);
+}
+
 .player-details {
-	display: inline-block;
+	text-shadow: 1px 1px 6px black;
+
+	&__username {
+		max-width: 13ch;
+		overflow-x: hidden;
+		text-wrap: nowrap;
+		text-overflow: ellipsis;
+		cursor: pointer;
+	}
+
+	&__name,
+	&__tag {
+		display: contents;
+	}
+
+	&__score {
+		user-select: none;
+	}
 
 	> :first-child {
 		font-weight: 500;
-
-		text-overflow: ellipsis;
-		word-wrap: nowrap;
 
 		> :last-child {
 			color: #aaaaaa;
 		}
 	}
-	> div {
-		text-align: center;
+}
+
+@media screen and (min-width: 400px) {
+	.player-details__username {
+		max-width: 32ch;
 	}
 }
 </style>
