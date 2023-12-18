@@ -1,68 +1,81 @@
 <script setup lang="ts">
-import { onBeforeMount, onMounted, ref } from "vue";
+import { onBeforeMount, onMounted, ref, toRef, watch } from "vue";
+import { ofetch } from "ofetch";
 import { store } from "../store";
 
-const region = ref("eu");
-const usernameWithTag = ref("");
+type Region = "eu" | "na" | "kr" | "ap";
+
+const region = ref<Region>("eu");
 const errorMsg = ref("");
 const loading = ref(false);
 
 function handleSubmit() {
-	loading.value = true;
-	const [username, tag] = usernameWithTag.value.split("#");
+	errorMsg.value = "";
+	store.matchHistory = [];
 
-	fetch(
-		`https://api.henrikdev.xyz/valorant/v3/matches/${region.value}/${username}/${tag}`
+	if (!store.searchedUser.includes("#") || !store.searchedUser.split("#")[1]) {
+		errorMsg.value = "Username is missing the tag";
+		return;
+	}
+
+	const [name, tag] = store.searchedUser.split("#");
+
+	if (tag.length > 5) {
+		errorMsg.value =
+			"The tag is too long. It has a maximum length of 5 characters";
+		return;
+	}
+
+	loading.value = true;
+
+	ofetch(
+		`https://api.henrikdev.xyz/valorant/v3/matches/${region.value}/${name}/${tag}`
 	)
-		.then(async (res) => {
-			loading.value = false;
-			if (res.status === 200) {
-				errorMsg.value = "";
-				try {
-					const data = await res.json();
-					if (data.status === 200) {
-						store.matchHistory = data.data;
-						store.userSearched = true;
-						store.searchedUser = [username, tag];
-					} else {
-						throw Error();
-					}
-				} catch {
-					throw Error(
-						"Failed to fetch match history with given region and username"
-					);
-				}
-			} else if (res.status === 429) {
-				throw Error("Too many requests. The limit is 250 requests every 2½ minutes");
-			} else {
-				throw Error(
-					"Failed to fetch match history with given region and username"
-				);
-			}
+		.then((res) => {
+			errorMsg.value = "";
+			store.matchHistory = res.data;
+			store.userSearched = true;
 		})
 		.catch((err) => {
-			errorMsg.value = err.message;
+			errorMsg.value = err.data.errors.map((o: any) => o.message).join(". ");
+		})
+		.finally(() => {
+			loading.value = false;
 		});
 }
 
 onBeforeMount(() => {
 	const params = Object.fromEntries(
 		new URLSearchParams(window.location.search).entries()
-	);
+	) as { region?: Region; name?: string; tag?: string };
 
-	if ("region" in params) {
+	if ("region" in params && params.region) {
 		region.value = params.region;
 	}
 
 	if ("name" in params && "tag" in params) {
-		usernameWithTag.value = `${params.name}#${params.tag}`;
+		store.searchedUser = `${params.name}#${params.tag}`;
 	}
 });
 
 onMounted(() => {
-	if (usernameWithTag.value) {
+	if (store.searchedUser) {
 		handleSubmit();
 	}
+
+	watch(
+		() => store.searchedUser,
+		() => {
+			const [name, tag] = store.searchedUser.split("#");
+
+			const currentPath = window.location.pathname;
+			const newSearch = `?region=${region.value}&name=${name}&tag=${tag}`;
+			const newURL = currentPath + newSearch;
+
+			window.history.pushState({ path: newURL }, "", newURL);
+			handleSubmit();
+		}
+	);
 });
 </script>
 
@@ -70,7 +83,7 @@ onMounted(() => {
 	<div v-if="loading" class="loader"></div>
 	<div :class="store.userSearched ? '' : 'bigmargin'">
 		<h1 v-if="!store.userSearched">VALORANT Match History Lookup</h1>
-		<form @submit.prevent="handleSubmit">
+		<search>
 			<div class="custom-select">
 				<select name="region" v-model="region">
 					<option selected value="eu">Europe</option>
@@ -83,10 +96,11 @@ onMounted(() => {
 			<input
 				type="text"
 				placeholder="Username#tag"
-				v-model="usernameWithTag"
 				autofocus
+				:value="store.searchedUser"
+				@change="(e) => store.searchedUser = (e.target as HTMLInputElement).value"
 			/>
-		</form>
+		</search>
 		<div v-if="errorMsg" class="error">{{ errorMsg }}</div>
 	</div>
 </template>
@@ -116,7 +130,7 @@ onMounted(() => {
 
 h1 {
 	margin: 2em auto;
-	font-size: 2rem;
+	font-size: 1.75em;
 	text-align: center;
 }
 
@@ -134,14 +148,14 @@ h1 {
 	animation: spin 1.5s linear infinite;
 }
 
-form {
+search {
 	display: flex;
 	margin: 0 auto;
 	width: 100%;
 }
 
 input {
-	background-color: #232323;
+	background-color: rgba(255, 255, 255, 0.03);
 	border: 1px solid #767676;
 	border-bottom-right-radius: 12px;
 	border-top-right-radius: 12px;
@@ -153,14 +167,16 @@ input {
 
 .custom-select {
 	position: relative;
+	font-size: var(--font-size);
 
 	select {
 		background-color: #232323;
+		width: max-content;
 		height: 100%;
 		border: 1px solid #767676;
 		border-bottom-left-radius: 12px;
 		border-top-left-radius: 12px;
-		padding: 1em 4em 1em 1em;
+		padding: 0.75em 3em 0.75em 0.75em;
 		appearance: none;
 	}
 
@@ -208,7 +224,7 @@ input {
 	width: 100%;
 	padding: 1em;
 	color: #ef5350;
-	font-size: 2rem;
+	font-size: 1.75em;
 	font-weight: 700;
 	text-align: center;
 }
@@ -216,14 +232,12 @@ input {
 @media screen and (min-width: 600px) {
 	form {
 		width: 80%;
-		font-size: 1.125rem;
 	}
 }
 
 @media screen and (min-width: 800px) {
 	form {
 		width: 60%;
-		font-size: 1.25rem;
 	}
 }
 </style>
