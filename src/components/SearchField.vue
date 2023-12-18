@@ -9,7 +9,7 @@ const region = ref<Region>("eu");
 const errorMsg = ref("");
 const loading = ref(false);
 
-function handleSubmit() {
+function handleSearch() {
 	errorMsg.value = "";
 	store.matchHistory = [];
 
@@ -60,7 +60,7 @@ onBeforeMount(() => {
 
 onMounted(() => {
 	if (store.searchedUser) {
-		handleSubmit();
+		handleSearch();
 	}
 
 	watch(
@@ -73,7 +73,7 @@ onMounted(() => {
 			const newURL = currentPath + newSearch;
 
 			window.history.pushState({ path: newURL }, "", newURL);
-			handleSubmit();
+			handleSearch();
 		}
 	);
 });
