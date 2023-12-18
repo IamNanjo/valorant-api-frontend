@@ -72,7 +72,7 @@ onMounted(() => {
 			const newSearch = `?region=${region.value}&name=${name}&tag=${tag}`;
 			const newURL = currentPath + newSearch;
 
-			window.history.pushState({ path: newURL }, "", newURL);
+			window.history.replaceState({ path: newURL }, "", newURL);
 			handleSearch();
 		}
 	);
