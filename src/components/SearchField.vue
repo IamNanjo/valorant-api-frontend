@@ -29,7 +29,7 @@ function handleSearch() {
 	loading.value = true;
 
 	ofetch(
-		`https://api.henrikdev.xyz/valorant/v3/matches/${region.value}/${name}/${tag}?api_key=HDEV-fe1f6e07-35fa-453a-8412-56cbc59e669e`
+		`https://api.henrikdev.xyz/valorant/v3/matches/${region.value}/${name}/${tag}?api_key=HDEV-35e6d022-b13a-45e4-a904-b4bdc8d33763`
 	)
 		.then((res) => {
 			errorMsg.value = "";
